@@ -26,14 +26,26 @@ export default function CreateCoursePage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    short_description: '',
     category_id: '',
     price: '',
-    duration: '',
+    duration_days: '',
+    total_hours: '',
+    max_students: '',
+    min_students: '1',
     level: 'beginner',
     status: 'draft',
-    max_students: '',
-    start_date: '',
-    end_date: '',
+    is_featured: false,
+    limited_quota: false,
+    learning_objectives: '',
+    prerequisites: '',
+    what_you_will_learn: '',
+    training_method: '',
+    internship_opportunity: '',
+    certification_info: '',
+    certification_price: '',
+    registration_link: '',
+    registration_deadline: '',
   });
 
   useEffect(() => {
@@ -62,8 +74,13 @@ export default function CreateCoursePage() {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleInstructorToggle = (instructorId: number) => {
@@ -88,7 +105,11 @@ export default function CreateCoursePage() {
         ...formData,
         category_id: parseInt(formData.category_id),
         price: parseFloat(formData.price) || 0,
+        duration_days: parseInt(formData.duration_days) || 0,
+        total_hours: parseInt(formData.total_hours) || 0,
         max_students: formData.max_students ? parseInt(formData.max_students) : null,
+        min_students: parseInt(formData.min_students) || 1,
+        certification_price: formData.certification_price ? parseFloat(formData.certification_price) : null,
         instructor_ids: selectedInstructors,
       };
 
@@ -140,21 +161,36 @@ export default function CreateCoursePage() {
                 onChange={handleInputChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Contoh: Belajar Laravel dari Nol"
+                placeholder="Contoh: Pelatihan Mekanik Alat Berat Dasar"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Deskripsi
+                Deskripsi Singkat
+              </label>
+              <textarea
+                name="short_description"
+                value={formData.short_description}
+                onChange={handleInputChange}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Deskripsi singkat untuk preview..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Deskripsi Lengkap <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
+                required
                 rows={5}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Jelaskan tentang kursus ini..."
+                placeholder="Jelaskan detail tentang kursus ini..."
               />
             </div>
 
@@ -191,7 +227,7 @@ export default function CreateCoursePage() {
                   min="0"
                   step="1000"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="0"
+                  placeholder="5000000"
                 />
               </div>
             </div>
@@ -199,15 +235,31 @@ export default function CreateCoursePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Durasi
+                  Durasi (Hari)
                 </label>
                 <input
-                  type="text"
-                  name="duration"
-                  value={formData.duration}
+                  type="number"
+                  name="duration_days"
+                  value={formData.duration_days}
                   onChange={handleInputChange}
+                  min="0"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Contoh: 3 Bulan, 40 Jam"
+                  placeholder="10"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Total Jam
+                </label>
+                <input
+                  type="number"
+                  name="total_hours"
+                  value={formData.total_hours}
+                  onChange={handleInputChange}
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="80"
                 />
               </div>
 
@@ -226,7 +278,9 @@ export default function CreateCoursePage() {
                   <option value="advanced">Advanced</option>
                 </select>
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Status
@@ -242,38 +296,50 @@ export default function CreateCoursePage() {
                   <option value="archived">Archived</option>
                 </select>
               </div>
+
+              <div className="flex items-center space-x-6 pt-7">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="is_featured"
+                    checked={formData.is_featured}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <span className="text-sm text-gray-700">Kursus Unggulan</span>
+                </label>
+
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="limited_quota"
+                    checked={formData.limited_quota}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <span className="text-sm text-gray-700">Kuota Terbatas</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Schedule & Capacity */}
+        {/* Capacity */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Jadwal & Kapasitas
+            Kapasitas Peserta
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tanggal Mulai
+                Minimal Peserta
               </label>
               <input
-                type="date"
-                name="start_date"
-                value={formData.start_date}
+                type="number"
+                name="min_students"
+                value={formData.min_students}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tanggal Selesai
-              </label>
-              <input
-                type="date"
-                name="end_date"
-                value={formData.end_date}
-                onChange={handleInputChange}
+                min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
@@ -289,7 +355,150 @@ export default function CreateCoursePage() {
                 onChange={handleInputChange}
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Tidak terbatas"
+                placeholder="Kosongkan jika tidak terbatas"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Learning Details */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Detail Pembelajaran
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tujuan Pembelajaran
+              </label>
+              <textarea
+                name="learning_objectives"
+                value={formData.learning_objectives}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Contoh: Memahami sistem kerja alat berat, mampu melakukan troubleshooting..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Prasyarat
+              </label>
+              <textarea
+                name="prerequisites"
+                value={formData.prerequisites}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Contoh: Minimal SMA/SMK, memiliki minat di bidang teknik..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Apa yang Akan Dipelajari
+              </label>
+              <textarea
+                name="what_you_will_learn"
+                value={formData.what_you_will_learn}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Contoh: Sistem hidrolik, sistem engine, sistem transmisi..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Metode Pelatihan
+              </label>
+              <textarea
+                name="training_method"
+                value={formData.training_method}
+                onChange={handleInputChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Contoh: Tatap muka, praktik langsung, studi kasus..."
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Certification & Registration */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Sertifikasi & Pendaftaran
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Informasi Sertifikasi
+              </label>
+              <textarea
+                name="certification_info"
+                value={formData.certification_info}
+                onChange={handleInputChange}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Informasi tentang sertifikat yang akan diberikan..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Harga Sertifikasi (IDR)
+              </label>
+              <input
+                type="number"
+                name="certification_price"
+                value={formData.certification_price}
+                onChange={handleInputChange}
+                min="0"
+                step="1000"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Kosongkan jika gratis"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Link Pendaftaran
+              </label>
+              <input
+                type="url"
+                name="registration_link"
+                value={formData.registration_link}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="https://..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Batas Waktu Pendaftaran
+              </label>
+              <input
+                type="date"
+                name="registration_deadline"
+                value={formData.registration_deadline}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kesempatan Magang
+              </label>
+              <textarea
+                name="internship_opportunity"
+                value={formData.internship_opportunity}
+                onChange={handleInputChange}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Informasi tentang kesempatan magang setelah kursus..."
               />
             </div>
           </div>
@@ -349,4 +558,3 @@ export default function CreateCoursePage() {
     </div>
   );
 }
-

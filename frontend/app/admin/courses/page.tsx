@@ -12,15 +12,18 @@ interface Course {
   title: string;
   slug: string;
   description: string;
+  short_description?: string;
   price: number;
-  duration: string;
+  duration_days: number;
+  total_hours: number;
   level: string;
   status: string;
+  is_featured: boolean;
   category: {
     id: number;
     name: string;
   };
-  thumbnail_url?: string;
+  image?: string;
 }
 
 export default function AdminCoursesPage() {
@@ -165,7 +168,7 @@ export default function AdminCoursesPage() {
                     Harga
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Durasi
+                    Durasi (Hari/Jam)
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Level
@@ -183,9 +186,9 @@ export default function AdminCoursesPage() {
                   <tr key={course.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        {course.thumbnail_url && (
+                        {course.image && (
                           <img
-                            src={course.thumbnail_url}
+                            src={course.image}
                             alt={course.title}
                             className="w-12 h-12 rounded object-cover mr-3"
                           />
@@ -193,6 +196,11 @@ export default function AdminCoursesPage() {
                         <div>
                           <div className="text-sm font-medium text-gray-900">
                             {course.title}
+                            {course.is_featured && (
+                              <span className="ml-2 px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded">
+                                Featured
+                              </span>
+                            )}
                           </div>
                           <div className="text-sm text-gray-500">{course.slug}</div>
                         </div>
@@ -209,7 +217,10 @@ export default function AdminCoursesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">{course.duration}</span>
+                      <div className="text-sm text-gray-900">
+                        {course.duration_days} hari
+                        {course.total_hours > 0 && ` / ${course.total_hours} jam`}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900 capitalize">
