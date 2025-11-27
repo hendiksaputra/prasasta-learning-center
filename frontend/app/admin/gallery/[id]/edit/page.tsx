@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { galleryApi } from '@/lib/api-admin';
-import { apiAdmin } from '@/lib/api-admin';
+import { galleryApi, adminApi } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
 import { ArrowLeft, Save, Loader2, Upload, X, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -93,7 +92,7 @@ export default function EditGalleryPage() {
       formDataUpload.append('file', file);
       formDataUpload.append('folder', 'gallery');
 
-      const response = await apiAdmin.post('/admin/upload', formDataUpload, {
+      const response = await adminApi.post('/admin/upload', formDataUpload, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

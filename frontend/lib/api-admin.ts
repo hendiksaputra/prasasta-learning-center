@@ -235,5 +235,7 @@ export const facilitiesApi = {
   },
 };
 
+// Export adminApi as both default and named export for flexibility
+export { adminApi };
 export default adminApi;
 
