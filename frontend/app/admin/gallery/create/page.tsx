@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { galleryApi } from '@/lib/api-admin';
+import { apiAdmin } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Save, Loader2, Upload, X } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Upload, X, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CreateGalleryPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [dragActive, setDragActive] = useState(false);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -37,6 +40,69 @@ export default function CreateGalleryPage() {
     const url = e.target.value;
     setFormData((prev) => ({ ...prev, image_url: url }));
     setImagePreview(url);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('File harus berupa gambar (JPG, PNG, GIF, WebP)');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ukuran file maksimal 2MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+      formDataUpload.append('folder', 'gallery');
+
+      const response = await apiAdmin.post('/admin/upload', formDataUpload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const imageUrl = response.data.url;
+      setFormData((prev) => ({ ...prev, image_url: imageUrl }));
+      setImagePreview(imageUrl);
+      alert('Gambar berhasil diupload!');
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      alert(error.response?.data?.message || 'Gagal mengupload gambar');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,21 +177,59 @@ export default function CreateGalleryPage() {
                   </button>
                 </div>
               ) : (
-                <div className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400">
-                  <Upload className="w-12 h-12 mb-2" />
-                  <p className="text-sm text-center">
-                    Masukkan URL gambar<br />untuk melihat preview
-                  </p>
+                <div
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  className={`aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-colors ${
+                    dragActive
+                      ? 'border-primary-500 bg-primary-50'
+                      : 'border-gray-300 bg-white'
+                  }`}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-12 h-12 mb-3 text-primary-600 animate-spin" />
+                      <p className="text-sm text-gray-600">Mengupload...</p>
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon className="w-12 h-12 mb-3 text-gray-400" />
+                      <p className="text-sm text-gray-700 font-medium mb-1">
+                        Drag & drop gambar di sini
+                      </p>
+                      <p className="text-xs text-gray-500 mb-3">atau</p>
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                          disabled={uploading}
+                        />
+                        <span className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors inline-block">
+                          Pilih File
+                        </span>
+                      </label>
+                      <p className="text-xs text-gray-400 mt-3">
+                        Max 2MB • JPG, PNG, GIF, WebP
+                      </p>
+                    </>
+                  )}
                 </div>
               )}
 
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-xs text-blue-800">
-                  <strong>Tips:</strong>
-                  <br />• Upload gambar ke hosting (ImgBB, Cloudinary, dll)
-                  <br />• Gunakan gambar landscape/square
+                  <strong>2 Cara Upload:</strong>
+                  <br />1. Drag & drop atau klik "Pilih File"
+                  <br />2. Paste URL gambar dari hosting
+                  <br /><br />
+                  <strong>Spesifikasi:</strong>
                   <br />• Resolusi minimal 800x600px
-                  <br />• Format: JPG, PNG, WebP
+                  <br />• Format: JPG, PNG, GIF, WebP
+                  <br />• Ukuran maksimal: 2MB
                 </p>
               </div>
             </div>
@@ -159,16 +263,17 @@ export default function CreateGalleryPage() {
                     URL Gambar <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     name="image_url"
                     value={formData.image_url}
                     onChange={handleImageUrlChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="https://example.com/image.jpg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
+                    placeholder="Auto-terisi setelah upload file (atau paste URL manual)"
+                    readOnly={uploading}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Paste URL gambar yang sudah di-upload ke hosting
+                    📤 Upload file otomatis mengisi field ini, atau paste URL manual dari hosting eksternal
                   </p>
                 </div>
 
