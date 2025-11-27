@@ -1,21 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { testimonialsApi } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
 import { Plus, Edit, Trash2, Search, Star } from 'lucide-react';
 
 interface Testimonial {
   id: number;
-  student_name: string;
-  student_title: string;
-  content: string;
+  name: string;
+  position: string;
+  company?: string;
+  testimonial: string;
+  course_name?: string;
   rating: number;
-  photo_url?: string;
+  photo?: string;
   is_featured: boolean;
+  status: string;
 }
 
 export default function AdminTestimonialsPage() {
+  const router = useRouter();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,7 +68,7 @@ export default function AdminTestimonialsPage() {
   };
 
   const filteredTestimonials = testimonials.filter((testimonial) =>
-    testimonial.student_name.toLowerCase().includes(searchQuery.toLowerCase())
+    testimonial.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderStars = (rating: number) => {
@@ -101,10 +107,12 @@ export default function AdminTestimonialsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Kelola Testimoni</h1>
           <p className="text-gray-600 mt-1">Kelola testimoni dari peserta</p>
         </div>
-        <Button onClick={() => alert('Fitur tambah testimoni akan segera tersedia')}>
-          <Plus className="w-4 h-4 mr-2" />
-          Tambah Testimoni
-        </Button>
+        <Link href="/admin/testimonials/create">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Tambah Testimoni
+          </Button>
+        </Link>
       </div>
 
       {/* Search */}
@@ -126,10 +134,12 @@ export default function AdminTestimonialsPage() {
         {filteredTestimonials.length === 0 ? (
           <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
             <p className="text-gray-500">Tidak ada testimoni ditemukan</p>
-            <Button onClick={() => alert('Fitur tambah testimoni akan segera tersedia')} className="mt-4">
-              <Plus className="w-4 h-4 mr-2" />
-              Tambah Testimoni Pertama
-            </Button>
+            <Link href="/admin/testimonials/create">
+              <Button className="mt-4">
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Testimoni Pertama
+              </Button>
+            </Link>
           </div>
         ) : (
           filteredTestimonials.map((testimonial) => (
@@ -141,26 +151,32 @@ export default function AdminTestimonialsPage() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4">
-                  {testimonial.photo_url ? (
+                  {testimonial.photo ? (
                     <img
-                      src={testimonial.photo_url}
-                      alt={testimonial.student_name}
+                      src={testimonial.photo}
+                      alt={testimonial.name}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                       <span className="text-xl font-bold text-gray-500">
-                        {testimonial.student_name.charAt(0)}
+                        {testimonial.name.charAt(0)}
                       </span>
                     </div>
                   )}
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {testimonial.student_name}
+                      {testimonial.name}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {testimonial.student_title}
+                      {testimonial.position}
+                      {testimonial.company && ` - ${testimonial.company}`}
                     </p>
+                    {testimonial.course_name && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Kursus: {testimonial.course_name}
+                      </p>
+                    )}
                     <div className="mt-1">{renderStars(testimonial.rating)}</div>
                   </div>
                 </div>
@@ -172,7 +188,7 @@ export default function AdminTestimonialsPage() {
               </div>
 
               <p className="text-gray-700 text-sm mb-4 line-clamp-4">
-                "{testimonial.content}"
+                "{testimonial.testimonial}"
               </p>
 
               <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
@@ -190,7 +206,7 @@ export default function AdminTestimonialsPage() {
                 </button>
                 <div className="flex space-x-2">
                   <button
-                    onClick={() => alert('Fitur edit testimoni akan segera tersedia')}
+                    onClick={() => router.push(`/admin/testimonials/${testimonial.id}/edit`)}
                     className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                     title="Edit"
                   >
@@ -198,7 +214,7 @@ export default function AdminTestimonialsPage() {
                   </button>
                   <button
                     onClick={() =>
-                      handleDelete(testimonial.id, testimonial.student_name)
+                      handleDelete(testimonial.id, testimonial.name)
                     }
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Hapus"
