@@ -1,20 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { galleryApi } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
-import { Plus, Trash2, Search, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Search, Image as ImageIcon, Edit, Star } from 'lucide-react';
 
 interface GalleryImage {
   id: number;
   title: string;
-  description: string;
+  description?: string;
   image_url: string;
-  thumbnail_url?: string;
-  order: number;
+  category?: string;
+  is_featured: boolean;
+  status: string;
+  sort_order: number;
 }
 
 export default function AdminGalleryPage() {
+  const router = useRouter();
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,10 +78,12 @@ export default function AdminGalleryPage() {
           <h1 className="text-2xl font-bold text-gray-900">Kelola Galeri</h1>
           <p className="text-gray-600 mt-1">Kelola foto galeri kegiatan</p>
         </div>
-        <Button onClick={() => alert('Fitur upload gambar akan segera tersedia')}>
-          <Plus className="w-4 h-4 mr-2" />
-          Upload Gambar
-        </Button>
+        <Link href="/admin/gallery/create">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Upload Gambar
+          </Button>
+        </Link>
       </div>
 
       {/* Search */}
@@ -98,10 +105,12 @@ export default function AdminGalleryPage() {
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
           <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500 mb-4">Tidak ada gambar ditemukan</p>
-          <Button onClick={() => alert('Fitur upload gambar akan segera tersedia')}>
-            <Plus className="w-4 h-4 mr-2" />
-            Upload Gambar Pertama
-          </Button>
+          <Link href="/admin/gallery/create">
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Upload Gambar Pertama
+            </Button>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -112,11 +121,33 @@ export default function AdminGalleryPage() {
             >
               <div className="relative aspect-square">
                 <img
-                  src={image.thumbnail_url || image.image_url}
+                  src={image.image_url}
                   alt={image.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
+                {/* Badges */}
+                <div className="absolute top-2 left-2 flex flex-col gap-1">
+                  {image.is_featured && (
+                    <span className="px-2 py-1 text-xs font-semibold text-white bg-blue-600 rounded-full flex items-center gap-1">
+                      <Star className="w-3 h-3 fill-white" />
+                      Featured
+                    </span>
+                  )}
+                  {image.category && (
+                    <span className="px-2 py-1 text-xs font-medium text-gray-700 bg-white bg-opacity-90 rounded-full capitalize">
+                      {image.category}
+                    </span>
+                  )}
+                </div>
+                {/* Action Buttons */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center gap-3">
+                  <button
+                    onClick={() => router.push(`/admin/gallery/${image.id}/edit`)}
+                    className="opacity-0 group-hover:opacity-100 bg-primary-600 text-white p-3 rounded-full hover:bg-primary-700 transition-all transform scale-0 group-hover:scale-100"
+                    title="Edit"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </button>
                   <button
                     onClick={() => handleDelete(image.id, image.title)}
                     className="opacity-0 group-hover:opacity-100 bg-red-600 text-white p-3 rounded-full hover:bg-red-700 transition-all transform scale-0 group-hover:scale-100"
