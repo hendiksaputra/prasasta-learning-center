@@ -18,8 +18,13 @@ export interface Course {
   price: number;
   duration_days: number;
   total_hours: number;
+  max_students?: number;
+  min_students?: number;
   level: 'beginner' | 'intermediate' | 'advanced';
   status: 'draft' | 'published' | 'archived';
+  is_featured?: boolean;
+  limited_quota?: boolean;
+  category_id?: number;
   category: {
     id: number;
     name: string;
@@ -46,7 +51,6 @@ export interface Course {
   certification_price?: number;
   registration_link?: string;
   registration_deadline?: string;
-  limited_quota?: boolean;
   training_method?: string;
 }
 
