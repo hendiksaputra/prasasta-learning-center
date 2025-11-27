@@ -5,7 +5,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:3000'),
+        'https://prasasta.co.id',
+        'https://www.prasasta.co.id',
+        'http://localhost:3000',
+    ],
 
     'allowed_origins_patterns' => [],
 
