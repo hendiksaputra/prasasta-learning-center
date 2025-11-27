@@ -75,10 +75,12 @@ export default function AdminInstructorsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Kelola Instruktur</h1>
           <p className="text-gray-600 mt-1">Kelola data instruktur</p>
         </div>
-        <Button onClick={() => alert('Fitur tambah instruktur akan segera tersedia')}>
-          <Plus className="w-4 h-4 mr-2" />
-          Tambah Instruktur
-        </Button>
+        <Link href="/admin/instructors/create">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Tambah Instruktur
+          </Button>
+        </Link>
       </div>
 
       {/* Search */}
@@ -100,10 +102,12 @@ export default function AdminInstructorsPage() {
         {filteredInstructors.length === 0 ? (
           <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
             <p className="text-gray-500">Tidak ada instruktur ditemukan</p>
-            <Button onClick={() => alert('Fitur tambah instruktur akan segera tersedia')} className="mt-4">
-              <Plus className="w-4 h-4 mr-2" />
-              Tambah Instruktur Pertama
-            </Button>
+            <Link href="/admin/instructors/create">
+              <Button className="mt-4">
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Instruktur Pertama
+              </Button>
+            </Link>
           </div>
         ) : (
           filteredInstructors.map((instructor) => (
@@ -161,13 +165,14 @@ export default function AdminInstructorsPage() {
                   {instructor.courses_count || 0} kursus
                 </span>
                 <div className="flex space-x-2">
-                  <button
-                    onClick={() => alert('Fitur edit instruktur akan segera tersedia')}
-                    className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    title="Edit"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
+                  <Link href={`/admin/instructors/${instructor.id}/edit`}>
+                    <button
+                      className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                      title="Edit"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                  </Link>
                   <button
                     onClick={() => handleDelete(instructor.id, instructor.name)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
