@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { instructorsApi } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
 import { Plus, Edit, Trash2, Search, Mail, Phone } from 'lucide-react';
