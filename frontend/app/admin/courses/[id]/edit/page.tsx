@@ -64,22 +64,23 @@ export default function EditCoursePage() {
     try {
       setLoading(true);
       const response = await coursesApi.get(Number(courseId));
-      const course = response.data;
+      console.log('Course response:', response); // Debug log
+      const course = response;
       
       setFormData({
         title: course.title || '',
         description: course.description || '',
         short_description: course.short_description || '',
-        category_id: course.category_id?.toString() || '',
-        price: course.price?.toString() || '',
-        duration_days: course.duration_days?.toString() || '',
-        total_hours: course.total_hours?.toString() || '',
+        category_id: course.category_id?.toString() || (course.category?.id?.toString()) || '',
+        price: course.price?.toString() || '0',
+        duration_days: course.duration_days?.toString() || '0',
+        total_hours: course.total_hours?.toString() || '0',
         max_students: course.max_students?.toString() || '',
         min_students: course.min_students?.toString() || '1',
         level: course.level || 'beginner',
         status: course.status || 'draft',
-        is_featured: course.is_featured || false,
-        limited_quota: course.limited_quota || false,
+        is_featured: Boolean(course.is_featured),
+        limited_quota: Boolean(course.limited_quota),
         learning_objectives: course.learning_objectives || '',
         prerequisites: course.prerequisites || '',
         what_you_will_learn: course.what_you_will_learn || '',
@@ -95,10 +96,13 @@ export default function EditCoursePage() {
       if (course.instructors && Array.isArray(course.instructors)) {
         setSelectedInstructors(course.instructors.map((i: any) => i.id));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching course:', error);
-      alert('Gagal memuat data kursus');
-      router.push('/admin/courses');
+      console.error('Error response:', error.response?.data);
+      const errorMessage = error.response?.data?.message || error.message || 'Gagal memuat data kursus';
+      alert(`Error: ${errorMessage}`);
+      // Don't redirect immediately, let user see the error
+      // router.push('/admin/courses');
     } finally {
       setLoading(false);
     }
