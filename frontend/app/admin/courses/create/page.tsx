@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { coursesApi, categoriesApi, instructorsApi } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 
 interface Category {
@@ -23,6 +23,12 @@ export default function CreateCoursePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [selectedInstructors, setSelectedInstructors] = useState<number[]>([]);
+  
+  // JSON Array States
+  const [courseMaterials, setCourseMaterials] = useState<string[]>(['']);
+  const [requirements, setRequirements] = useState<string[]>(['']);
+  const [facilities, setFacilities] = useState<string[]>(['']);
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -91,6 +97,30 @@ export default function CreateCoursePage() {
     );
   };
 
+  // Dynamic Array Handlers
+  const handleArrayItemChange = (
+    index: number,
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setter((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+  const addArrayItem = (setter: React.Dispatch<React.SetStateAction<string[]>>) => {
+    setter((prev) => [...prev, '']);
+  };
+
+  const removeArrayItem = (
+    index: number,
+    setter: React.Dispatch<React.SetStateAction<string[]>>
+  ) => {
+    setter((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -111,6 +141,10 @@ export default function CreateCoursePage() {
         min_students: parseInt(formData.min_students) || 1,
         certification_price: formData.certification_price ? parseFloat(formData.certification_price) : null,
         instructor_ids: selectedInstructors,
+        // Add JSON arrays (filter empty values)
+        course_materials: courseMaterials.filter(item => item.trim() !== ''),
+        requirements: requirements.filter(item => item.trim() !== ''),
+        facilities: facilities.filter(item => item.trim() !== ''),
       };
 
       await coursesApi.create(payload);
@@ -324,6 +358,135 @@ export default function CreateCoursePage() {
           </div>
         </div>
 
+        {/* Daftar Materi */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Daftar Materi
+            </h2>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addArrayItem(setCourseMaterials)}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Tambah Materi
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {courseMaterials.map((material, index) => (
+              <div key={index} className="flex gap-2">
+                <input
+                  type="text"
+                  value={material}
+                  onChange={(e) => handleArrayItemChange(index, e.target.value, setCourseMaterials)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder={`Materi ${index + 1}: Contoh: Basic Safety`}
+                />
+                {courseMaterials.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeArrayItem(index, setCourseMaterials)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Persyaratan */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Persyaratan
+            </h2>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addArrayItem(setRequirements)}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Tambah Persyaratan
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {requirements.map((req, index) => (
+              <div key={index} className="flex gap-2">
+                <div className="flex-shrink-0 w-8 h-10 bg-primary-600 text-white rounded-lg flex items-center justify-center font-bold">
+                  {index + 1}
+                </div>
+                <input
+                  type="text"
+                  value={req}
+                  onChange={(e) => handleArrayItemChange(index, e.target.value, setRequirements)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder={`Persyaratan ${index + 1}: Contoh: Usia 21-27 Tahun`}
+                />
+                {requirements.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeArrayItem(index, setRequirements)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Fasilitas */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Fasilitas & Yang Termasuk
+            </h2>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addArrayItem(setFacilities)}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Tambah Fasilitas
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {facilities.map((facility, index) => (
+              <div key={index} className="flex gap-2">
+                <input
+                  type="text"
+                  value={facility}
+                  onChange={(e) => handleArrayItemChange(index, e.target.value, setFacilities)}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder={`Fasilitas ${index + 1}: Contoh: Handbook`}
+                />
+                {facilities.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeArrayItem(index, setFacilities)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Capacity */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -383,7 +546,7 @@ export default function CreateCoursePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Prasyarat
+                Prasyarat (Dokumen Tambahan)
               </label>
               <textarea
                 name="prerequisites"
@@ -391,7 +554,7 @@ export default function CreateCoursePage() {
                 onChange={handleInputChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="Contoh: Minimal SMA/SMK, memiliki minat di bidang teknik..."
+                placeholder="Contoh: Ijazah Terakhir, KTP, Kartu Keluarga (pisahkan dengan enter)"
               />
             </div>
 
