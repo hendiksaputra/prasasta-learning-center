@@ -44,7 +44,12 @@ export default function CourseDetail({ slug }: CourseDetailProps) {
   }, [slug]);
 
   const formatPrice = (price: number) => {
-    return `Rp ${price.toLocaleString('id-ID')}`;
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price).replace('Rp', 'Rp ');
   };
 
   if (loading) {
