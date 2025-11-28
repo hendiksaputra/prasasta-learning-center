@@ -85,7 +85,7 @@ export default function AdminCategoriesPage() {
   };
 
   const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+    cat.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
   );
 
   if (loading) {

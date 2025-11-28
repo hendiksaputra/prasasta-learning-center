@@ -54,7 +54,7 @@ export default function AdminInstructorsPage() {
   };
 
   const filteredInstructors = instructors.filter((instructor) =>
-    instructor.name.toLowerCase().includes(searchQuery.toLowerCase())
+    instructor.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
   );
 
   if (loading) {

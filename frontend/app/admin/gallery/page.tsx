@@ -56,7 +56,7 @@ export default function AdminGalleryPage() {
   };
 
   const filteredImages = images.filter((image) =>
-    image.title.toLowerCase().includes(searchQuery.toLowerCase())
+    image.title?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
   );
 
   if (loading) {

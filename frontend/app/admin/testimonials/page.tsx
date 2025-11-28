@@ -68,7 +68,7 @@ export default function AdminTestimonialsPage() {
   };
 
   const filteredTestimonials = testimonials.filter((testimonial) =>
-    testimonial.name.toLowerCase().includes(searchQuery.toLowerCase())
+    testimonial.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
   );
 
   const renderStars = (rating: number) => {
