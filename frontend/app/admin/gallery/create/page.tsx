@@ -84,13 +84,26 @@ export default function CreateGalleryPage() {
       console.error('❌ Error uploading file:', error);
       console.error('Response data:', error.response?.data);
       console.error('Response status:', error.response?.status);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       
       let errorMsg = 'Gagal mengupload gambar';
       
       if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        errorMsg = 'Upload timeout. File terlalu besar atau koneksi lambat. Coba compress gambar atau gunakan koneksi lebih cepat.';
+        errorMsg = 'Upload timeout. Server tidak merespons. Silakan coba lagi atau hubungi administrator.';
       } else if (error.response?.status === 413) {
         errorMsg = 'File terlalu besar. Maksimal 10MB.';
+      } else if (error.response?.status === 422) {
+        const errors = error.response?.data?.errors;
+        if (errors?.file) {
+          errorMsg = `Validasi gagal: ${errors.file.join(', ')}`;
+        } else {
+          errorMsg = error.response?.data?.message || 'Validasi gagal. Pastikan file adalah gambar (JPG, PNG, GIF, WebP) dan maksimal 10MB.';
+        }
+      } else if (error.response?.status === 500) {
+        errorMsg = `Server error: ${error.response?.data?.error || error.response?.data?.message || 'Terjadi kesalahan di server'}`;
+      } else if (!error.response) {
+        errorMsg = 'Tidak ada respons dari server. Periksa koneksi internet atau coba lagi nanti.';
       } else {
         errorMsg = error.response?.data?.message 
           || error.response?.data?.error
