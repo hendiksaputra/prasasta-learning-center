@@ -12,15 +12,33 @@ use Illuminate\Validation\ValidationException;
 
 class FileUploadController extends Controller
 {
+    public function test(): JsonResponse
+    {
+        return response()->json([
+            'message' => 'Upload endpoint is accessible',
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+    }
+
     public function upload(Request $request): JsonResponse
     {
+        // Set execution time limit
+        set_time_limit(300);
+        ini_set('max_execution_time', '300');
+        ini_set('max_input_time', '300');
+        
+        // Log request start immediately (before any processing)
+        Log::info('=== UPLOAD REQUEST START ===', [
+            'has_file' => $request->hasFile('file'),
+            'folder' => $request->input('folder'),
+            'content_type' => $request->header('Content-Type'),
+            'content_length' => $request->header('Content-Length'),
+            'method' => $request->method(),
+            'url' => $request->fullUrl(),
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+        
         try {
-            // Log request start
-            Log::info('Upload request received', [
-                'has_file' => $request->hasFile('file'),
-                'folder' => $request->input('folder'),
-                'content_type' => $request->header('Content-Type'),
-            ]);
 
             // Validate request
             $validated = $request->validate([
