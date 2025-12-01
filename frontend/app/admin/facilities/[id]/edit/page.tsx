@@ -106,7 +106,7 @@ export default function EditFacilityPage() {
             console.log(`⏳ Upload progress: ${percentCompleted}%`);
           }
         },
-        timeout: 120000,
+        timeout: 300000, // 5 minutes for large files and slow connections
       });
 
       console.log('✅ Upload response:', response.data);
