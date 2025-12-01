@@ -27,9 +27,17 @@ export default function AboutPage() {
               <Target className="h-8 w-8 text-primary-600" />
             </div>
             <h2 className="text-2xl font-bold mb-4 text-gray-900">Visi Kami</h2>
-            <p className="text-gray-600 leading-relaxed">
-              Menjadi pusat pelatihan terdepan di Indonesia untuk bidang mekanik alat berat dan operator, 
-              yang menghasilkan tenaga kerja profesional dan kompeten di industri konstruksi dan pertambangan.
+            <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+              Menjadi lembaga{'\n'}
+              pelatihan{'\n'}
+              yang professional{'\n'}
+              dan berkualitas{'\n'}
+              guna terwujudnya{'\n'}
+              sumber daya{'\n'}
+              manusia{'\n'}
+              kompeten untuk{'\n'}
+              kemajuan bangsa{'\n'}
+              dan negara.
             </p>
           </Card>
 
