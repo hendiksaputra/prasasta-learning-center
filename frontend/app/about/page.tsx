@@ -27,17 +27,8 @@ export default function AboutPage() {
               <Target className="h-8 w-8 text-primary-600" />
             </div>
             <h2 className="text-2xl font-bold mb-4 text-gray-900">Visi Kami</h2>
-            <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-              Menjadi lembaga{'\n'}
-              pelatihan{'\n'}
-              yang professional{'\n'}
-              dan berkualitas{'\n'}
-              guna terwujudnya{'\n'}
-              sumber daya{'\n'}
-              manusia{'\n'}
-              kompeten untuk{'\n'}
-              kemajuan bangsa{'\n'}
-              dan negara.
+            <p className="text-gray-600 leading-relaxed">
+              Menjadi lembaga pelatihan yang professional dan berkualitas guna terwujudnya sumber daya manusia kompeten untuk kemajuan bangsa dan negara.
             </p>
           </Card>
 
