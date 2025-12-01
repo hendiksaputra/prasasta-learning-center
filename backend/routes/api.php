@@ -33,7 +33,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/facilities', [\App\Http\Controllers\Api\FacilityController::class, 'index']);
 
     // Authentication routes
-    Route::post('/auth/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
+    // Gunakan match(['POST','GET']) untuk menghindari kasus environment/server
+    // yang mengubah metode request (misalnya redirect atau proxy),
+    // namun tetap memproses login hanya jika credential valid.
+    Route::match(['POST', 'GET'], '/auth/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
     
     // Protected routes (require authentication)
     Route::middleware('auth:sanctum')->group(function () {
