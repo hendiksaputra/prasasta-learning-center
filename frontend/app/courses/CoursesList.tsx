@@ -47,6 +47,15 @@ export default function CoursesList() {
     fetchCourses();
   }, []);
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price).replace('Rp', 'Rp ');
+  };
+
   if (loading) {
     return (
       <div className="text-center py-12">
@@ -102,7 +111,7 @@ export default function CoursesList() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-2xl font-bold text-primary-600">
-                Rp {course.price.toLocaleString('id-ID')}
+                {formatPrice(course.price)}
               </span>
               <Link href={`/courses/${course.slug}`}>
                 <Button size="sm">
