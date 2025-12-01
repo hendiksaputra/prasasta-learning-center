@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
-import { LogOut, BookOpen, Users, FileText, Image, Building, MessageSquare } from 'lucide-react';
+import { LogOut, BookOpen, Users, FileText, Image, Building, MessageSquare, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
@@ -100,6 +100,13 @@ export default function AdminDashboard() {
       icon: Building,
       href: '/admin/facilities',
       color: 'bg-indigo-500',
+    },
+    {
+      title: 'Pendaftaran',
+      description: 'Kelola pendaftaran kursus',
+      icon: ClipboardList,
+      href: '/admin/enrollments',
+      color: 'bg-teal-500',
     },
   ];
 

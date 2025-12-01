@@ -55,9 +55,11 @@ export default function AdminGalleryPage() {
     }
   };
 
-  const filteredImages = images.filter((image) =>
-    image.title?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-  );
+  const filteredImages = images.filter((image) => {
+    const title = (image.title || '').toLowerCase();
+    const query = (searchQuery || '').toLowerCase();
+    return title.includes(query);
+  });
 
   if (loading) {
     return (

@@ -53,9 +53,11 @@ export default function AdminInstructorsPage() {
     }
   };
 
-  const filteredInstructors = instructors.filter((instructor) =>
-    instructor.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-  );
+  const filteredInstructors = instructors.filter((instructor) => {
+    const name = (instructor.name || '').toLowerCase();
+    const query = (searchQuery || '').toLowerCase();
+    return name.includes(query);
+  });
 
   if (loading) {
     return (

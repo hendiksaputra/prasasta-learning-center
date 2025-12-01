@@ -67,9 +67,11 @@ export default function AdminTestimonialsPage() {
     }
   };
 
-  const filteredTestimonials = testimonials.filter((testimonial) =>
-    testimonial.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-  );
+  const filteredTestimonials = testimonials.filter((testimonial) => {
+    const name = (testimonial.name || '').toLowerCase();
+    const query = (searchQuery || '').toLowerCase();
+    return name.includes(query);
+  });
 
   const renderStars = (rating: number) => {
     return (

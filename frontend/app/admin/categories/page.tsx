@@ -84,9 +84,11 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-  );
+  const filteredCategories = categories.filter((cat) => {
+    const name = (cat.name || '').toLowerCase();
+    const query = (searchQuery || '').toLowerCase();
+    return name.includes(query);
+  });
 
   if (loading) {
     return (

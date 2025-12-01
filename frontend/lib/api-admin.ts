@@ -8,6 +8,7 @@ const adminApi = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 60000, // 60 seconds timeout for large uploads
 });
 
 // Add request interceptor to include auth token
@@ -113,6 +114,10 @@ export const instructorsApi = {
 export const enrollmentsApi = {
   list: async (params?: { status?: string; course_id?: number; page?: number; per_page?: number }) => {
     const response = await adminApi.get('/admin/enrollments', { params });
+    return response.data;
+  },
+  get: async (id: number) => {
+    const response = await adminApi.get(`/admin/enrollments/${id}`);
     return response.data;
   },
   update: async (id: number, data: any) => {

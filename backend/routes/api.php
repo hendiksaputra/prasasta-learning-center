@@ -52,6 +52,7 @@ Route::prefix('v1')->group(function () {
                 Route::apiResource('facilities', \App\Http\Controllers\Admin\FacilityController::class);
                 Route::post('upload', [\App\Http\Controllers\Admin\FileUploadController::class, 'upload']);
                 Route::get('enrollments', [\App\Http\Controllers\Admin\EnrollmentController::class, 'index']);
+                Route::get('enrollments/{id}', [\App\Http\Controllers\Admin\EnrollmentController::class, 'show']);
                 Route::put('enrollments/{id}', [\App\Http\Controllers\Admin\EnrollmentController::class, 'update']);
             });
     });

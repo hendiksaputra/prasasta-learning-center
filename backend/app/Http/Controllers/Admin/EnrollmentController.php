@@ -27,6 +27,13 @@ class EnrollmentController extends Controller
         return response()->json($enrollments);
     }
 
+    public function show(int $id): JsonResponse
+    {
+        $enrollment = Enrollment::with(['student', 'course'])->findOrFail($id);
+
+        return response()->json($enrollment);
+    }
+
     public function update(Request $request, int $id): JsonResponse
     {
         $enrollment = Enrollment::findOrFail($id);

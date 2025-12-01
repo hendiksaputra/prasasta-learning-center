@@ -2,19 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { galleryApi, adminApi } from '@/lib/api-admin';
+import { facilitiesApi, adminApi } from '@/lib/api-admin';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Save, Loader2, Upload, X, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, X, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
-export default function EditGalleryPage() {
+export default function EditFacilityPage() {
   const router = useRouter();
   const params = useParams();
-  const galleryId = params?.id;
+  const facilityId = params?.id;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [dragActive, setDragActive] = useState(false);
   
@@ -22,36 +23,36 @@ export default function EditGalleryPage() {
     title: '',
     description: '',
     image_url: '',
-    category: 'training',
+    sort_order: 0,
     is_featured: true,
     status: 'published',
   });
 
   useEffect(() => {
-    if (galleryId) {
-      fetchGallery();
+    if (facilityId) {
+      fetchFacility();
     }
-  }, [galleryId]);
+  }, [facilityId]);
 
-  const fetchGallery = async () => {
+  const fetchFacility = async () => {
     try {
       setLoading(true);
-      const response = await galleryApi.get(Number(galleryId));
-      const gallery = response.data || response;
+      const response = await facilitiesApi.get(Number(facilityId));
+      const facility = response.data || response;
       
       setFormData({
-        title: gallery.title || '',
-        description: gallery.description || '',
-        image_url: gallery.image_url || '',
-        category: gallery.category || 'training',
-        is_featured: Boolean(gallery.is_featured),
-        status: gallery.status || 'published',
+        title: facility.title || '',
+        description: facility.description || '',
+        image_url: facility.image_url || '',
+        sort_order: facility.sort_order || 0,
+        is_featured: Boolean(facility.is_featured),
+        status: facility.status || 'published',
       });
-      setImagePreview(gallery.image_url || '');
+      setImagePreview(facility.image_url || '');
     } catch (error: any) {
-      console.error('Error fetching gallery:', error);
-      alert(error.response?.data?.message || 'Gagal memuat data galeri');
-      router.push('/admin/gallery');
+      console.error('Error fetching facility:', error);
+      alert(error.response?.data?.message || 'Gagal memuat data fasilitas');
+      router.push('/admin/facilities');
     } finally {
       setLoading(false);
     }
@@ -64,6 +65,8 @@ export default function EditGalleryPage() {
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else if (name === 'sort_order') {
+      setFormData((prev) => ({ ...prev, [name]: parseInt(value) || 0 }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -88,34 +91,50 @@ export default function EditGalleryPage() {
 
     try {
       setUploading(true);
+      setUploadProgress(0);
       const formDataUpload = new FormData();
       formDataUpload.append('file', file);
-      formDataUpload.append('folder', 'gallery');
+      formDataUpload.append('folder', 'facilities');
 
       console.log('🚀 Uploading file:', file.name, 'Size:', file.size);
       
-      // Don't set Content-Type - let axios auto-detect with boundary
-      const response = await adminApi.post('/admin/upload', formDataUpload);
+      const response = await adminApi.post('/admin/upload', formDataUpload, {
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+            console.log(`⏳ Upload progress: ${percentCompleted}%`);
+          }
+        },
+        timeout: 120000,
+      });
 
       console.log('✅ Upload response:', response.data);
       
       const imageUrl = response.data.url;
       setFormData((prev) => ({ ...prev, image_url: imageUrl }));
       setImagePreview(imageUrl);
-      alert('Gambar berhasil diupload!');
+      alert('Gambar berhasil diganti!');
     } catch (error: any) {
       console.error('❌ Error uploading file:', error);
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
       
-      const errorMsg = error.response?.data?.message 
-        || error.response?.data?.error
-        || error.message 
-        || 'Gagal mengupload gambar';
+      let errorMsg = 'Gagal mengupload gambar';
+      
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        errorMsg = 'Upload timeout. File terlalu besar atau koneksi lambat.';
+      } else if (error.response?.status === 413) {
+        errorMsg = 'File terlalu besar. Maksimal 10MB.';
+      } else {
+        errorMsg = error.response?.data?.message 
+          || error.response?.data?.error
+          || error.message 
+          || errorMsg;
+      }
       
       alert(`Upload gagal: ${errorMsg}`);
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -151,18 +170,18 @@ export default function EditGalleryPage() {
     e.preventDefault();
     
     if (!formData.title || !formData.image_url) {
-      alert('Judul dan URL gambar wajib diisi!');
+      alert('Judul dan gambar wajib diisi!');
       return;
     }
 
     try {
       setSaving(true);
-      await galleryApi.update(Number(galleryId), formData);
-      alert('Gambar galeri berhasil diupdate!');
-      router.push('/admin/gallery');
+      await facilitiesApi.update(Number(facilityId), formData);
+      alert('Fasilitas berhasil diupdate!');
+      router.push('/admin/facilities');
     } catch (error: any) {
-      console.error('Error updating gallery:', error);
-      alert(error.response?.data?.message || 'Gagal mengupdate gambar');
+      console.error('Error updating facility:', error);
+      alert(error.response?.data?.message || 'Gagal mengupdate fasilitas');
     } finally {
       setSaving(false);
     }
@@ -170,11 +189,8 @@ export default function EditGalleryPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Memuat data galeri...</p>
-        </div>
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -184,15 +200,15 @@ export default function EditGalleryPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link href="/admin/gallery">
+          <Link href="/admin/facilities">
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Kembali
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Foto Galeri</h1>
-            <p className="text-gray-600 mt-1">Update informasi foto</p>
+            <h1 className="text-2xl font-bold text-gray-900">Edit Fasilitas</h1>
+            <p className="text-gray-600 mt-1">Ubah informasi fasilitas pelatihan</p>
           </div>
         </div>
       </div>
@@ -204,11 +220,11 @@ export default function EditGalleryPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Preview Gambar
+                Gambar Fasilitas
               </h2>
               
               {imagePreview ? (
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
+                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
                   <img
                     src={imagePreview}
                     alt="Preview"
@@ -218,20 +234,6 @@ export default function EditGalleryPage() {
                       alert('Gagal memuat gambar. Periksa URL.');
                     }}
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
-                    <label className="opacity-0 group-hover:opacity-100 cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                        disabled={uploading}
-                      />
-                      <span className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors inline-block">
-                        Ganti Foto
-                      </span>
-                    </label>
-                  </div>
                   <button
                     type="button"
                     onClick={() => {
@@ -249,7 +251,7 @@ export default function EditGalleryPage() {
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
                   onDrop={handleDrop}
-                  className={`aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-colors ${
+                  className={`aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-colors mb-4 ${
                     dragActive
                       ? 'border-primary-500 bg-primary-50'
                       : 'border-gray-300 bg-white'
@@ -258,15 +260,26 @@ export default function EditGalleryPage() {
                   {uploading ? (
                     <>
                       <Loader2 className="w-12 h-12 mb-3 text-primary-600 animate-spin" />
-                      <p className="text-sm text-gray-600">Mengupload...</p>
+                      <p className="text-sm text-gray-700 font-medium">Mengupload...</p>
+                      {uploadProgress > 0 && (
+                        <>
+                          <div className="w-48 h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                            <div 
+                              className="h-full bg-primary-600 transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">{uploadProgress}%</p>
+                        </>
+                      )}
                     </>
                   ) : (
                     <>
                       <ImageIcon className="w-12 h-12 mb-3 text-gray-400" />
                       <p className="text-sm text-gray-700 font-medium mb-1">
-                        Drag & drop gambar di sini
+                        Upload gambar baru
                       </p>
-                      <p className="text-xs text-gray-500 mb-3">atau</p>
+                      <p className="text-xs text-gray-500 mb-3">Drag & drop atau</p>
                       <label className="cursor-pointer">
                         <input
                           type="file"
@@ -280,25 +293,15 @@ export default function EditGalleryPage() {
                         </span>
                       </label>
                       <p className="text-xs text-gray-400 mt-3">
-                        Max 2MB • JPG, PNG, GIF, WebP
+                        Max 2MB • JPG, PNG, GIF
                       </p>
                     </>
                   )}
                 </div>
               )}
 
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-xs text-blue-800">
-                  <strong>2 Cara Upload:</strong>
-                  <br />1. Hover foto → "Ganti Foto"
-                  <br />2. Drag & drop atau klik "Pilih File"
-                  <br />3. Paste URL gambar dari hosting
-                  <br /><br />
-                  <strong>Spesifikasi:</strong>
-                  <br />• Resolusi minimal 800x600px
-                  <br />• Format: JPG, PNG, GIF, WebP
-                  <br />• Ukuran maksimal: 2MB
-                </p>
+              <div className="p-3 bg-blue-50 rounded-lg text-xs text-blue-800">
+                💡 Upload gambar baru akan mengganti gambar lama
               </div>
             </div>
           </div>
@@ -308,12 +311,12 @@ export default function EditGalleryPage() {
             {/* Basic Information */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Informasi Gambar
+                Informasi Fasilitas
               </h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Judul Foto <span className="text-red-500">*</span>
+                    Judul Fasilitas <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -336,12 +339,8 @@ export default function EditGalleryPage() {
                     onChange={handleImageUrlChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50"
-                    placeholder="Auto-terisi setelah upload file (atau paste URL manual)"
                     readOnly={uploading}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    📤 Upload file otomatis mengisi field ini, atau paste URL manual dari hosting eksternal
-                  </p>
                 </div>
 
                 <div>
@@ -354,27 +353,21 @@ export default function EditGalleryPage() {
                     onChange={handleInputChange}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Deskripsi singkat tentang foto ini..."
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Kategori
+                    Urutan Tampil
                   </label>
-                  <select
-                    name="category"
-                    value={formData.category}
+                  <input
+                    type="number"
+                    name="sort_order"
+                    value={formData.sort_order}
                     onChange={handleInputChange}
+                    min="0"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="training">Training/Pelatihan</option>
-                    <option value="workshop">Workshop</option>
-                    <option value="classroom">Classroom</option>
-                    <option value="facility">Fasilitas</option>
-                    <option value="certification">Sertifikasi</option>
-                    <option value="others">Lainnya</option>
-                  </select>
+                  />
                 </div>
               </div>
             </div>
@@ -412,10 +405,10 @@ export default function EditGalleryPage() {
                     />
                     <div>
                       <span className="text-sm font-semibold text-gray-900">
-                        Tampilkan di Galeri Beranda
+                        Tampilkan di Beranda
                       </span>
                       <p className="text-xs text-gray-600 mt-1">
-                        Foto ini akan ditampilkan di section Galeri Kegiatan di halaman beranda
+                        Fasilitas ini akan ditampilkan di halaman beranda
                       </p>
                     </div>
                   </label>
@@ -425,7 +418,7 @@ export default function EditGalleryPage() {
 
             {/* Actions */}
             <div className="flex justify-end space-x-3">
-              <Link href="/admin/gallery">
+              <Link href="/admin/facilities">
                 <Button type="button" variant="outline">
                   Batal
                 </Button>
@@ -439,7 +432,7 @@ export default function EditGalleryPage() {
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Update Foto
+                    Update Fasilitas
                   </>
                 )}
               </Button>

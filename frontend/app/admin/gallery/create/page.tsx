@@ -11,6 +11,7 @@ export default function CreateGalleryPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [dragActive, setDragActive] = useState(false);
   
@@ -54,25 +55,53 @@ export default function CreateGalleryPage() {
 
     try {
       setUploading(true);
+      setUploadProgress(0);
       const formDataUpload = new FormData();
       formDataUpload.append('file', file);
       formDataUpload.append('folder', 'gallery');
 
+      console.log('🚀 Uploading file:', file.name, 'Size:', file.size);
+      
+      // Don't set Content-Type - let axios auto-detect with boundary
       const response = await adminApi.post('/admin/upload', formDataUpload, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+            console.log(`⏳ Upload progress: ${percentCompleted}%`);
+          }
         },
+        timeout: 120000, // 2 minutes for large files
       });
 
+      console.log('✅ Upload response:', response.data);
+      
       const imageUrl = response.data.url;
       setFormData((prev) => ({ ...prev, image_url: imageUrl }));
       setImagePreview(imageUrl);
       alert('Gambar berhasil diupload!');
     } catch (error: any) {
-      console.error('Error uploading file:', error);
-      alert(error.response?.data?.message || 'Gagal mengupload gambar');
+      console.error('❌ Error uploading file:', error);
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
+      
+      let errorMsg = 'Gagal mengupload gambar';
+      
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        errorMsg = 'Upload timeout. File terlalu besar atau koneksi lambat. Coba compress gambar atau gunakan koneksi lebih cepat.';
+      } else if (error.response?.status === 413) {
+        errorMsg = 'File terlalu besar. Maksimal 10MB.';
+      } else {
+        errorMsg = error.response?.data?.message 
+          || error.response?.data?.error
+          || error.message 
+          || errorMsg;
+      }
+      
+      alert(`Upload gagal: ${errorMsg}`);
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -190,7 +219,18 @@ export default function CreateGalleryPage() {
                   {uploading ? (
                     <>
                       <Loader2 className="w-12 h-12 mb-3 text-primary-600 animate-spin" />
-                      <p className="text-sm text-gray-600">Mengupload...</p>
+                      <p className="text-sm text-gray-700 font-medium">Mengupload...</p>
+                      {uploadProgress > 0 && (
+                        <>
+                          <div className="w-48 h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                            <div 
+                              className="h-full bg-primary-600 transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">{uploadProgress}%</p>
+                        </>
+                      )}
                     </>
                   ) : (
                     <>
