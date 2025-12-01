@@ -37,13 +37,9 @@ export default function AboutPage() {
               <Heart className="h-8 w-8 text-primary-600" />
             </div>
             <h2 className="text-2xl font-bold mb-4 text-gray-900">Misi Kami</h2>
-            <ul className="text-gray-600 space-y-2 leading-relaxed">
-              <li>• Menyediakan kurikulum pelatihan yang komprehensif dan terstruktur</li>
-              <li>• Menghadirkan instruktur berpengalaman di industri</li>
-              <li>• Menyediakan fasilitas praktik yang memadai</li>
-              <li>• Memberikan sertifikat kompetensi yang diakui industri</li>
-              <li>• Membangun jaringan dengan perusahaan untuk penempatan kerja</li>
-            </ul>
+            <p className="text-gray-600 leading-relaxed">
+              Menciptakan dan menerapkan pembelajaran yang inovatif dan efektif untuk membantu meningkatkan potensi sumber daya manusia.
+            </p>
           </Card>
         </div>
 
