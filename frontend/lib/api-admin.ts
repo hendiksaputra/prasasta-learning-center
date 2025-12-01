@@ -50,12 +50,30 @@ adminApi.interceptors.response.use(
 // Auth API
 export const authApi = {
   login: async (email: string, password: string) => {
-    const response = await adminApi.post('/auth/login', { email, password });
-    if (response.data.token) {
-      localStorage.setItem('admin_token', response.data.token);
-      localStorage.setItem('admin_user', JSON.stringify(response.data.user));
+    try {
+      const response = await adminApi.post('/auth/login', { email, password });
+      const data = response.data;
+
+      // Simpan token jika ada di response sukses normal
+      if (data?.token) {
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_user', JSON.stringify(data.user));
+      }
+
+      return data;
+    } catch (error: any) {
+      // Beberapa environment / proxy bisa melempar error meski body berisi token.
+      // Jika backend tetap mengirim token di body error, anggap login berhasil.
+      const data = error?.response?.data;
+      if (data?.token) {
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_user', JSON.stringify(data.user));
+        return data;
+      }
+
+      // Jika benar‑benar gagal, teruskan error ke caller.
+      throw error;
     }
-    return response.data;
   },
   logout: async () => {
     await adminApi.post('/auth/logout');
