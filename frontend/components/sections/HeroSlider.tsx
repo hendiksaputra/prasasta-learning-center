@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 // Catatan: Untuk production, ganti URL ini dengan gambar dari gallery atau upload ke server
 const sliderImages = [
   {
-    url: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80',
+    url: '/images/hero-slider-1.jpg',
     alt: 'Pelatihan Mekanik Alat Berat - Heavy Equipment Training',
   },
   {
