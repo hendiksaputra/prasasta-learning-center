@@ -5,22 +5,21 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Array gambar slider dengan tema pelatihan mekanik alat berat
-// Catatan: Untuk production, ganti URL ini dengan gambar dari gallery atau upload ke server
 const sliderImages = [
   {
     url: '/images/hero-slider-1.jpg',
     alt: 'Pelatihan Mekanik Alat Berat - Heavy Equipment Training',
   },
   {
-    url: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=80',
+    url: '/images/hero-slider-2.jpg',
     alt: 'Operator Alat Berat - Equipment Operator Training',
   },
   {
-    url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=80',
+    url: '/images/hero-slider-3.jpg',
     alt: 'Pelatihan Praktik Alat Berat - Hands-on Training',
   },
   {
-    url: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80',
+    url: '/images/hero-slider-4.jpg',
     alt: 'Kegiatan Pelatihan Mekanik - Mechanical Training',
   },
 ];
