@@ -49,10 +49,10 @@ export default function Home() {
         {/* Content */}
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in drop-shadow-lg">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in drop-shadow-2xl text-white">
               Pelatihan Mekanik Alat Berat & Operator
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-primary-100 leading-relaxed drop-shadow-md">
+            <p className="text-xl md:text-2xl mb-8 text-white leading-relaxed drop-shadow-xl font-medium">
               Tingkatkan keterampilan Anda dengan pelatihan profesional dari instruktur berpengalaman di industri alat berat
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

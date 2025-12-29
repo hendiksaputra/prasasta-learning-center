@@ -68,11 +68,13 @@ export default function HeroSlider() {
               alt={image.alt}
               fill
               sizes="100vw"
-              className="object-cover"
+              className="object-cover brightness-125 contrast-105"
               priority={index === 0}
             />
-            {/* Overlay transparan untuk kontras teks */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-600/85 via-primary-700/85 to-primary-800/85"></div>
+            {/* Overlay ringan untuk kontras teks - lebih cerah dan profesional */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-600/30 via-primary-700/25 to-primary-800/30"></div>
+            {/* Overlay tambahan ringan untuk memastikan teks terbaca */}
+            <div className="absolute inset-0 bg-black/5"></div>
           </div>
         ))}
       </div>
