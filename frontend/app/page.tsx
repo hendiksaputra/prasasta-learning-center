@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import GallerySection from "@/components/sections/GallerySection";
 import FacilitiesSection from "@/components/sections/FacilitiesSection";
+import HeroSlider from "@/components/sections/HeroSlider";
 
 export default function Home() {
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
@@ -37,38 +38,32 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 text-white py-24 overflow-hidden">
-        {/* Background Image */}
+      {/* Hero Section with Slider */}
+      <section className="relative text-white py-24 overflow-hidden min-h-[600px] flex items-center">
+        {/* Slider Background */}
         <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80"
-            alt="Heavy Equipment Training"
-            fill
-            sizes="100vw"
-            className="object-cover opacity-20"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-600/90 via-primary-700/90 to-primary-800/90"></div>
+          <HeroSlider />
         </div>
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-10 z-10"></div>
+        
+        {/* Content */}
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in drop-shadow-lg">
               Pelatihan Mekanik Alat Berat & Operator
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-primary-100 leading-relaxed">
+            <p className="text-xl md:text-2xl mb-8 text-primary-100 leading-relaxed drop-shadow-md">
               Tingkatkan keterampilan Anda dengan pelatihan profesional dari instruktur berpengalaman di industri alat berat
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/courses">
-                <Button size="lg">
+                <Button size="lg" className="shadow-lg">
                   Lihat Kursus
                   <ArrowRight className="ml-2 h-5 w-5 inline" />
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:bg-white/20">
+                <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:bg-white/20 shadow-lg backdrop-blur-sm">
                   Hubungi Kami
                 </Button>
               </Link>
